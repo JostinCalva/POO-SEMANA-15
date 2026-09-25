@@ -1,205 +1,225 @@
+from datetime import datetime
+
 from modelos.producto import Producto
 from modelos.usuario import Usuario
+from modelos.venta import Venta
 
 
 class RestauranteServicio:
 
-    def __init__(self, archivo_servicio):
+    def __init__(
+        self,
+        archivo_servicio,
+        archivo_productos="datos/productos.json",
+        archivo_usuarios="datos/usuarios.json",
+        archivo_ventas="datos/ventas.json"
+    ):
         self.archivo_servicio = archivo_servicio
+
+        self.archivo_productos = archivo_productos
+        self.archivo_usuarios = archivo_usuarios
+        self.archivo_ventas = archivo_ventas
 
         self.productos = []
         self.usuarios = []
+        self.ventas = []
 
         self.cargar_productos()
         self.cargar_usuarios()
+        self.cargar_ventas()
 
-    # =========================
+    # ==========================================
     # PRODUCTOS
-    # =========================
+    # ==========================================
 
     def cargar_productos(self):
         datos = self.archivo_servicio.leer_json(
-            "datos/productos.json"
+            self.archivo_productos
         )
 
-        self.productos = []
-
-        for dato in datos:
-            producto = Producto(
-                dato["codigo"],
-                dato["nombre"],
-                dato["precio"],
-                dato["stock"]
-            )
-
-            self.productos.append(producto)
+        self.productos = [
+            Producto.from_dict(producto)
+            for producto in datos
+        ]
 
     def guardar_productos(self):
-        datos = []
-
-        for producto in self.productos:
-            datos.append(producto.to_dict())
+        datos = [
+            producto.to_dict()
+            for producto in self.productos
+        ]
 
         self.archivo_servicio.guardar_json(
-            "datos/productos.json",
+            self.archivo_productos,
             datos
         )
 
-    def buscar_producto(self, codigo):
-        for producto in self.productos:
-            if str(producto.codigo) == str(codigo):
-                return producto
+    def cantidad_productos(self):
+        return len(self.productos)
 
-        return None
+    def registrar_producto(self, producto):
+        if not producto.codigo:
+            return False, "El código es obligatorio."
 
-    def registrar_producto(self, codigo, nombre, precio, stock):
+        if not producto.nombre:
+            return False, "El nombre es obligatorio."
 
-        if not codigo:
-            raise ValueError("El código es obligatorio.")
+        if producto.precio < 0:
+            return False, "El precio no puede ser negativo."
 
-        if not nombre:
-            raise ValueError("El nombre es obligatorio.")
+        if producto.stock < 0:
+            return False, "El stock no puede ser negativo."
 
-        if self.buscar_producto(codigo) is not None:
-            raise ValueError(
-                "Ya existe un producto con ese código."
-            )
-
-        try:
-            precio = float(precio)
-        except (ValueError, TypeError):
-            raise ValueError("El precio debe ser numérico.")
-
-        try:
-            stock = int(stock)
-        except (ValueError, TypeError):
-            raise ValueError(
-                "El stock debe ser un número entero."
-            )
-
-        if precio < 0:
-            raise ValueError(
-                "El precio no puede ser negativo."
-            )
-
-        if stock < 0:
-            raise ValueError(
-                "El stock no puede ser negativo."
-            )
-
-        producto = Producto(
-            codigo,
-            nombre,
-            precio,
-            stock
-        )
+        if self.buscar_producto(producto.codigo):
+            return False, "Ya existe un producto con ese código."
 
         self.productos.append(producto)
         self.guardar_productos()
 
-        return "Producto registrado correctamente."
+        return True, "Producto registrado correctamente."
 
-    def actualizar_producto(
-        self,
-        codigo,
-        nombre,
-        precio,
-        stock
-    ):
+    def buscar_producto(self, codigo):
+        for producto in self.productos:
+            if producto.codigo == codigo:
+                return producto
 
-        producto = self.buscar_producto(codigo)
+        return None
 
-        if producto is None:
-            raise ValueError("Producto no encontrado.")
+    def actualizar_producto(self, producto):
+        existente = self.buscar_producto(producto.codigo)
 
-        if not nombre:
-            raise ValueError("El nombre es obligatorio.")
+        if existente is None:
+            return False, "El producto no existe."
 
-        try:
-            precio = float(precio)
-        except (ValueError, TypeError):
-            raise ValueError("El precio debe ser numérico.")
-
-        try:
-            stock = int(stock)
-        except (ValueError, TypeError):
-            raise ValueError(
-                "El stock debe ser un número entero."
-            )
-
-        if precio < 0:
-            raise ValueError(
-                "El precio no puede ser negativo."
-            )
-
-        if stock < 0:
-            raise ValueError(
-                "El stock no puede ser negativo."
-            )
-
-        producto.nombre = nombre
-        producto.precio = precio
-        producto.stock = stock
+        existente.nombre = producto.nombre
+        existente.precio = producto.precio
+        existente.stock = producto.stock
 
         self.guardar_productos()
 
-        return "Producto actualizado correctamente."
+        return True, "Producto actualizado correctamente."
 
     def eliminar_producto(self, codigo):
-
         producto = self.buscar_producto(codigo)
 
         if producto is None:
-            raise ValueError("Producto no encontrado.")
+            return False, "El producto no existe."
 
         self.productos.remove(producto)
         self.guardar_productos()
 
-        return "Producto eliminado correctamente."
+        return True, "Producto eliminado correctamente."
 
-    # =========================
+    # ==========================================
     # USUARIOS
-    # =========================
+    # ==========================================
 
     def cargar_usuarios(self):
-
         datos = self.archivo_servicio.leer_json(
-            "datos/usuarios.json"
+            self.archivo_usuarios
         )
 
-        self.usuarios = []
+        self.usuarios = [
+            Usuario.from_dict(usuario)
+            for usuario in datos
+        ]
 
-        for dato in datos:
-
-            usuario = Usuario(
-                dato["identificacion"],
-                dato["nombre"],
-                dato["usuario"],
-                dato["password"]
-            )
-
-            self.usuarios.append(usuario)
+    def cantidad_usuarios(self):
+        return len(self.usuarios)
 
     def validar_acceso(self, usuario, password):
-
         usuario = str(usuario).strip()
         password = str(password).strip()
 
-        for usuario_registrado in self.usuarios:
+        for usuario_actual in self.usuarios:
 
             usuario_guardado = str(
-                usuario_registrado.usuario
+                usuario_actual.usuario
             ).strip()
 
-            password_guardada = str(
-                usuario_registrado.password
+            password_guardado = str(
+                usuario_actual.password
             ).strip()
 
             if (
                 usuario_guardado == usuario
-                and
-                password_guardada == password
+                and password_guardado == password
             ):
-                return usuario_registrado
+                return True, usuario_actual
 
-        return None
+        return False, None
+
+    # ==========================================
+    # VENTAS
+    # ==========================================
+
+    def cargar_ventas(self):
+        datos = self.archivo_servicio.leer_json(
+            self.archivo_ventas
+        )
+
+        self.ventas = [
+            Venta.from_dict(venta)
+            for venta in datos
+        ]
+
+    def guardar_ventas(self):
+        datos = [
+            venta.to_dict()
+            for venta in self.ventas
+        ]
+
+        self.archivo_servicio.guardar_json(
+            self.archivo_ventas,
+            datos
+        )
+
+    def obtener_ventas(self):
+        return self.ventas
+
+    def registrar_venta(self, identificacion_usuario, codigo_producto):
+
+        if not identificacion_usuario:
+            return False, "Debe seleccionar un usuario."
+
+        if not codigo_producto:
+            return False, "Debe seleccionar un producto."
+
+        usuario_encontrado = None
+
+        for usuario in self.usuarios:
+
+            if usuario.identificacion == identificacion_usuario:
+                usuario_encontrado = usuario
+                break
+
+        if usuario_encontrado is None:
+            return False, "El usuario seleccionado no existe."
+
+        producto_encontrado = self.buscar_producto(
+            codigo_producto
+        )
+
+        if producto_encontrado is None:
+            return False, "El producto seleccionado no existe."
+
+        if producto_encontrado.stock <= 0:
+            return False, "El producto seleccionado no tiene stock."
+
+        fecha_actual = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+        nueva_venta = Venta(
+            usuario=usuario_encontrado.identificacion,
+            producto=producto_encontrado.codigo,
+            fecha=fecha_actual
+        )
+
+        self.ventas.append(nueva_venta)
+
+        producto_encontrado.stock -= 1
+
+        self.guardar_productos()
+        self.guardar_ventas()
+
+        return True, "Venta registrada correctamente."

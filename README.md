@@ -1,51 +1,53 @@
-# Restaurante App - Semana 14
-## Nombre Jostin Calva
-## Descripción
+# Restaurante App - Semana 15
 
-Proyecto desarrollado para la Semana 14 de la asignatura Programación Orientada a Objetos.
+# Jostin Anthony Calva Salinas
 
-En esta semana se evolucionó la aplicación gráfica del restaurante mediante el uso de componentes, contenedores y gestores de geometría de Tkinter y ttk.
+## Programación Orientada a Objetos
 
-La aplicación permite iniciar sesión, consultar usuarios y gestionar productos mediante una interfaz gráfica organizada.
+Aplicación de escritorio desarrollada en Python utilizando Tkinter y una arquitectura modular.
 
-## Objetivo
+La Semana 15 corresponde a la evolución del proyecto restaurante_app desarrollado durante las semanas anteriores.
 
-Aplicar los fundamentos de componentes y contenedores en Tkinter, manteniendo la arquitectura modular del proyecto y la separación de responsabilidades entre modelos, servicios, interfaz y datos.
+## Funcionalidades
 
-## Estructura del proyecto
+- Inicio de sesión de usuarios.
+- Consulta de usuarios.
+- Consulta de productos.
+- Registro de ventas.
+- Selección de usuario y producto mediante componentes ttk.
+- Persistencia de información mediante archivos JSON.
+- Visualización de ventas mediante Treeview.
+- Actualización automática de la interfaz después de registrar una venta.
+- Uso de callbacks mediante `command=`.
+- Separación entre interfaz, servicios, modelos y datos.
+
+## Arquitectura
 
 ```text
 restaurante_app/
 ├── datos/
 │   ├── productos.json
-│   └── usuarios.json
+│   ├── usuarios.json
+│   └── ventas.json
+│
 ├── modelos/
-│   ├── __init__.py
 │   ├── producto.py
-│   └── usuario.py
+│   ├── usuario.py
+│   └── venta.py
+│
 ├── servicios/
-│   ├── __init__.py
 │   ├── archivo_servicio.py
 │   └── restaurante_servicio.py
+│
 ├── ui/
-│   ├── __init__.py
 │   ├── login_view.py
 │   └── main_view.py
+│
+├── assets/
+│   ├── logo.png
+│   ├── usuarios.png
+│   ├── productos.png
+│   └── ventas.png
+│
 ├── main.py
 └── README.md
-```
-
-## Componentes utilizados
-
-La interfaz gráfica utiliza componentes de Tkinter y ttk, entre ellos:
-
-* `Tk`
-* `Frame`
-* `LabelFrame`
-* `Label`
-* `Entry`
-* `Button`
-* `Treeview`
-* `messagebox`
-
-Esto

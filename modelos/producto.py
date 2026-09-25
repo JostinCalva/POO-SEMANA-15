@@ -1,10 +1,12 @@
-class Producto:
+from dataclasses import dataclass
 
-    def __init__(self, codigo, nombre, precio, stock):
-        self.codigo = codigo
-        self.nombre = nombre
-        self.precio = float(precio)
-        self.stock = int(stock)
+
+@dataclass
+class Producto:
+    codigo: str
+    nombre: str
+    precio: float
+    stock: int
 
     def to_dict(self):
         return {
@@ -13,3 +15,12 @@ class Producto:
             "precio": self.precio,
             "stock": self.stock
         }
+
+    @staticmethod
+    def from_dict(data):
+        return Producto(
+            codigo=str(data.get("codigo", "")),
+            nombre=str(data.get("nombre", "")),
+            precio=float(data.get("precio", 0)),
+            stock=int(data.get("stock", 0))
+        )

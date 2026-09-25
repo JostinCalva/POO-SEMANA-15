@@ -2,7 +2,6 @@ import tkinter as tk
 
 from servicios.archivo_servicio import ArchivoServicio
 from servicios.restaurante_servicio import RestauranteServicio
-
 from ui.login_view import LoginView
 from ui.main_view import MainView
 
@@ -13,39 +12,68 @@ class RestauranteApp:
 
         self.root = root
 
-        archivo_servicio = ArchivoServicio()
+        self.root.title(
+            "Restaurante App - Semana 15"
+        )
+
+        self.root.geometry(
+            "1000x700"
+        )
+
+        self.root.minsize(
+            900,
+            600
+        )
+
+        self.archivo_servicio = ArchivoServicio()
 
         self.restaurante_servicio = RestauranteServicio(
-            archivo_servicio
+            self.archivo_servicio
         )
+
+        self.login_view = None
+        self.main_view = None
 
         self.mostrar_login()
 
     def mostrar_login(self):
 
-        LoginView(
+        if self.main_view is not None:
+            self.main_view.destruir()
+            self.main_view = None
+
+        self.login_view = LoginView(
             self.root,
             self.restaurante_servicio,
-            self.mostrar_principal
+            self.iniciar_sesion
         )
 
-    def mostrar_principal(self, usuario):
+    def iniciar_sesion(self, usuario):
 
-        for widget in self.root.winfo_children():
-            widget.destroy()
+        if self.login_view is not None:
+            self.login_view.destruir()
+            self.login_view = None
 
-        MainView(
+        self.main_view = MainView(
             self.root,
             self.restaurante_servicio,
-            usuario
+            self.cerrar_sesion
         )
+
+    def cerrar_sesion(self):
+
+        if self.main_view is not None:
+            self.main_view.destruir()
+            self.main_view = None
+
+        self.mostrar_login()
 
 
 def main():
 
     root = tk.Tk()
 
-    RestauranteApp(root)
+    app = RestauranteApp(root)
 
     root.mainloop()
 
