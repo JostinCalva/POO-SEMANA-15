@@ -1,20 +1,26 @@
 [
     {
-        "codigo": "P001",
+        "id_producto": null,
         "nombre": "Hamburguesa",
         "precio": 3.5,
         "stock": 20
     },
     {
-        "codigo": "P002",
+        "id_producto": null,
         "nombre": "Pizza",
         "precio": 8.0,
         "stock": 15
     },
     {
-        "codigo": "P003",
+        "id_producto": null,
         "nombre": "Jugo Natural",
         "precio": 2.0,
         "stock": 30
+    },
+    {
+        "id_producto": "P004",
+        "nombre": "Pan",
+        "precio": 0.15,
+        "stock": 100
     }
 ]

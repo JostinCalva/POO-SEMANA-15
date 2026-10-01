@@ -1,37 +1,26 @@
-from dataclasses import dataclass
-
-
-@dataclass
 class Usuario:
-    identificacion: str
-    nombre: str
-    usuario: str
-    password: str
+    def __init__(self, id_usuario, nombre, username, password, rol="Cliente"):
+        self.id_usuario = id_usuario
+        self.nombre = nombre
+        self.username = username
+        self.password = password
+        self.rol = rol
 
     def to_dict(self):
         return {
-            "identificacion": self.identificacion,
+            "id_usuario": self.id_usuario,
             "nombre": self.nombre,
-            "usuario": self.usuario,
-            "password": self.password
+            "username": self.username,
+            "password": self.password,
+            "rol": self.rol
         }
 
-    @staticmethod
-    def from_dict(data):
-        return Usuario(
-            identificacion=str(
-                data.get("identificacion", "")
-            ).strip(),
-
-            nombre=str(
-                data.get("nombre", "")
-            ).strip(),
-
-            usuario=str(
-                data.get("usuario", "")
-            ).strip(),
-
-            password=str(
-                data.get("password", "")
-            ).strip()
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id_usuario=data["id_usuario"],
+            nombre=data["nombre"],
+            username=data["username"],
+            password=data["password"],
+            rol=data.get("rol", "Cliente")
         )

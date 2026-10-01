@@ -1,140 +1,50 @@
+import os
 import tkinter as tk
-from tkinter import ttk, messagebox
-
+from tkinter import messagebox
 
 class LoginView:
-
-    def __init__(
-        self,
-        root,
-        restaurante_servicio,
-        iniciar_sesion
-    ):
+    def __init__(self, root, servicio, callback_iniciar_sesion):
         self.root = root
-        self.restaurante_servicio = restaurante_servicio
-        self.iniciar_sesion = iniciar_sesion
+        self.servicio = servicio
+        self.callback_iniciar_sesion = callback_iniciar_sesion
+        self._crear_interfaz()
 
-        self.frame = ttk.Frame(
-            root,
-            padding=30
-        )
+    def _crear_interfaz(self):
+        frame = tk.Frame(self.root)
+        frame.pack(expand=True)
 
-        self.frame.pack(
-            fill="both",
-            expand=True
-        )
+        # --- SECCIÓN DEL LOGO ---
+        ruta_logo = "assets/logo.png" 
+        if os.path.exists(ruta_logo):
+            self.logo_img = tk.PhotoImage(file=ruta_logo)
+            # Si el logo es muy grande, puedes descomentar la siguiente línea:
+            # self.logo_img = self.logo_img.subsample(2, 2)
+            tk.Label(frame, image=self.logo_img).pack(pady=5)
+        # ------------------------
 
-        self.crear_interfaz()
+        tk.Label(frame, text="RESTAURANTE APP", font=("Arial", 24, "bold")).pack(pady=5)
+        tk.Label(frame, text="Sistema de gestión de restaurante", font=("Arial", 12)).pack(pady=10)
 
-    def crear_interfaz(self):
+        frame_form = tk.Frame(frame)
+        frame_form.pack(pady=10)
 
-        ttk.Label(
-            self.frame,
-            text="RESTAURANTE APP",
-            font=("Arial", 24, "bold")
-        ).pack(pady=(50, 10))
+        tk.Label(frame_form, text="Usuario:").grid(row=0, column=0, padx=10, pady=10)
+        self.entry_user = tk.Entry(frame_form)
+        self.entry_user.grid(row=0, column=1, padx=10, pady=10)
 
-        ttk.Label(
-            self.frame,
-            text="Sistema de gestión de restaurante",
-            font=("Arial", 12)
-        ).pack(pady=(0, 30))
+        tk.Label(frame_form, text="Contraseña:").grid(row=1, column=0, padx=10, pady=10)
+        self.entry_pass = tk.Entry(frame_form, show="*")
+        self.entry_pass.grid(row=1, column=1, padx=10, pady=10)
 
-        formulario = ttk.Frame(
-            self.frame
-        )
-
-        formulario.pack()
-
-        ttk.Label(
-            formulario,
-            text="Usuario:"
-        ).grid(
-            row=0,
-            column=0,
-            padx=10,
-            pady=10
-        )
-
-        self.entrada_usuario = ttk.Entry(
-            formulario,
-            width=30
-        )
-
-        self.entrada_usuario.grid(
-            row=0,
-            column=1,
-            padx=10,
-            pady=10
-        )
-
-        ttk.Label(
-            formulario,
-            text="Contraseña:"
-        ).grid(
-            row=1,
-            column=0,
-            padx=10,
-            pady=10
-        )
-
-        self.entrada_password = ttk.Entry(
-            formulario,
-            width=30,
-            show="*"
-        )
-
-        self.entrada_password.grid(
-            row=1,
-            column=1,
-            padx=10,
-            pady=10
-        )
-
-        ttk.Button(
-            formulario,
-            text="Ingresar",
-            command=self.procesar_login
-        ).grid(
-            row=2,
-            column=0,
-            columnspan=2,
-            pady=20
-        )
+        tk.Button(frame, text="Ingresar", command=self.procesar_login).pack(pady=15)
 
     def procesar_login(self):
+        username = self.entry_user.get()
+        password = self.entry_pass.get()
 
-        usuario = self.entrada_usuario.get().strip()
-        password = self.entrada_password.get().strip()
+        es_valido, usuario_encontrado = self.servicio.validar_acceso(username, password)
 
-        if not usuario or not password:
-
-            messagebox.showwarning(
-                "Datos incompletos",
-                "Ingrese usuario y contraseña."
-            )
-
-            return
-
-        correcto, usuario_encontrado = (
-            self.restaurante_servicio.validar_acceso(
-                usuario,
-                password
-            )
-        )
-
-        if correcto:
-
-            self.iniciar_sesion(
-                usuario_encontrado
-            )
-
+        if es_valido:
+            self.callback_iniciar_sesion(usuario_encontrado)
         else:
-
-            messagebox.showerror(
-                "Acceso denegado",
-                "Usuario o contraseña incorrectos."
-            )
-
-    def destruir(self):
-        self.frame.destroy()
+            messagebox.showerror("Error", "Usuario o contraseña incorrectos")
